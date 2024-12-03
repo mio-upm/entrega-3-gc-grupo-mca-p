@@ -9,13 +9,14 @@ import pulp as lp
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 
 especialidades = ['Cardiología Pediátrica','Cirugía Cardíaca Pediátrica','Cirugía Cardiovascular','Cirugía General y del Aparato Digestivo']
 resultados =[]
 
 def est_compatible(op1, op2):
-    # Vérifie si deux opérations ne se chevauchent pas
+    # Verifica si dos operaciones no se solapan
     return op1[4] <= op2[3] or op1[3] >= op2[4]
 
 for x in especialidades:
@@ -45,25 +46,25 @@ for x in especialidades:
     n = len(II)
 
 
-    # Générer toutes les combinaisons faisables de tailles différentes
-    for taille in range(1, n + 1):  # Taille des planifications (1, 2, ..., n)
+    # generar todas las combinaciones
+    for taille in range(1, n + 1):  # tamano de las planificaciones
         planifications = []
-        indices = list(range(taille))  # Indices pour la première combinaison
+        indices = list(range(taille))  # Indices 
         while True:
-            # Construire la planification actuelle à partir des indices
+            # Construir la planificación actual con los índices
             planification = [I[i] for i in indices]
-            # Vérifier si toutes les opérations sont compatibles
+            # Verificar si todas las operaciones son compatibles
             if all(est_compatible(op1, op2) for op1 in planification for op2 in planification if op1 != op2):
                 K.append(planification)
 
-            # Générer la prochaine combinaison
+            # Generar la proxima combinación
             for i in reversed(range(taille)):
                 if indices[i] < n - (taille - i):
                     indices[i] += 1
                     for j in range(i + 1, taille):
                         indices[j] = indices[j - 1] + 1
                     break
-            else:  # Fin des combinaisons pour cette taille
+            else:
                 break
 
 
@@ -75,24 +76,24 @@ for x in especialidades:
             indice_colonne = costes.columns.get_loc(i[0])
             Cij[(i[0], j)] = costes.iloc[indice_ligne, indice_colonne]
         
-    Ci = {} #valeur moyenne opération i
+    Ci = {} #valor media operación i
     for i in II :
         a = 0
         for j in J:
                 a += Cij[(i,j)]
         Ci[i] = a/len(J)
     
-    Bik ={} #binaire si opération i dans la planification k
+    Bik ={} #binaria si operación i en planificación k
     for k in range(len(K)):
         for j in II :
             for m in range(len(K[k])):
                 if j == K[k][m][0]:
-                    Bik[(j,k)] = 1 #si opération i est dans planification k
+                    Bik[(j,k)] = 1 #si operación i en planificación k
                 else :
-                  Bik[(j,k)] = 0 #sinon
+                  Bik[(j,k)] = 0 #sino
 
 
-    Ck = {} #cout de la planification k
+    Ck = {} #coste de la planificacóin k
     for i in range(len(K)):
         a = 0
         for j in range(len(K[i])):
@@ -123,6 +124,22 @@ for x in especialidades:
     #   print(v.name," = ", v.value())
     print("\nEstado del problema para  ",x," : ", lp.LpStatus[problema.status])
     print("\nValor de la función objetivo para ",x," = ", lp.value(problema.objective))
+    
+    # Créer un DataFrame pour stocker les résultats
+    result_data = []
+    for k in range(len(K)):
+        if y[k].value() == 1:  # Si la planification k est sélectionnée
+            for op in K[k]:  # Pour chaque opération dans la planification k
+                result_data.append({
+                    'Operación': op[0],
+                    'Inicio': op[3],
+                    'Fin': op[4],
+                    'Coste': Ck[k]
+                })
+    
+    result_df = pd.DataFrame(result_data)
+    
+    print(result_df)
 
 
-
+    
