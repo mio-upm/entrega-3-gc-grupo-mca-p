@@ -131,14 +131,27 @@ for x in especialidades:
         if y[k].value() == 1:  # Si la planification k est sélectionnée
             for op in K[k]:  # Pour chaque opération dans la planification k
                 result_data.append({
-                    'Operación': op[0],
+                    'Planification': k,
+                    'Opération': op[0],
                     'Inicio': op[3],
                     'Fin': op[4],
                     'Coste': Ck[k]
                 })
     
     result_df = pd.DataFrame(result_data)
+        # Visualiser les données avec un diagramme de Gantt
+    fig, ax = plt.subplots(figsize=(10, 6))
+    for plan in result_df['Planification'].unique():
+        plan_data = result_df[result_df['Planification'] == plan]
+        for _, row in plan_data.iterrows():
+            ax.barh(plan, row['Fin'] - row['Inicio'], left=row['Inicio'], label=f"Opération {row['Opération']}")
     
+    ax.set_xlabel('Temps')
+    ax.set_ylabel('Planifications')
+    ax.set_title('Diagramme de Gantt des planifications')
+    ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+    plt.show()
     print(result_df)
 
 

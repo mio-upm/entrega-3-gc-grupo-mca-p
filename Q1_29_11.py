@@ -82,9 +82,26 @@ problema += lp.lpSum(Cij[(i, j)] * x[(i, j)] for i in II for j in J)
 print('En cours de resolución...')
 problema.solve()
 
-# Resultados
-print("\nValor de las variables: ")
-for v in problema.variables():
-    print(v.name," = ", v.value())
-print("\nEstado del problema: ", lp.LpStatus[problema.status])
-print("\nValor de la función objetivo: ", lp.value(problema.objective))
+# Afficher l'état du problème et la valeur de la fonction objectif
+print("\nStatus del problema", lp.LpStatus[problema.status])
+print("\nObjetivo:", lp.value(problema.objective))
+
+# Récupérer les résultats de la variable x (assignation des opérations aux blocs opératoires)
+result_data = []  # Liste pour stocker les résultats à afficher
+
+# Vérification de l'assignation des opérations aux blocs opératoires
+for i in II:
+    for j in J:
+        if x[(i, j)].value() == 1:  # Si l'opération i est assignée au bloc opératoire j
+            # Ajouter l'information dans le tableau
+            result_data.append({
+                'Operacion': i,
+                'Quirófano': j,
+            })
+
+# Convertir la liste en DataFrame pour un affichage propre
+result_df = pd.DataFrame(result_data)
+
+# Afficher le tableau des résultats
+print("\nAsignacion de las operaciones a los quirofanos :")
+print(result_df)
