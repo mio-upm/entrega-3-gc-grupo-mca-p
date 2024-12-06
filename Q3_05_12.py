@@ -118,11 +118,16 @@ for i, (id_op_i, inicio_i, fin_i) in enumerate(operaciones):
 
 #COLUMNAS INICIALES
 initial_columns = []
-for _, row in datos_operaciones_df.iterrows():
-    operation_id = row["Código operación"]
-    start_time = pd.to_datetime(row["Hora inicio "]).strftime('%H:%M')
-    end_time = pd.to_datetime(row["Hora fin"]).strftime('%H:%M')
-    initial_columns.append([(operation_id, start_time, end_time)])
+used = set()
+for op1 in operaciones:
+    if op1[0] not in used:
+        group = [op1]
+        used.add(op1[0])
+        for op2 in operaciones:
+            if op2[0] not in used and not incompatibilidades.get((op1[0], op2[0]), False):
+                group.append(op2)
+                used.add(op2[0])
+        initial_columns.append([(op[0], op[1], op[2]) for op in group])
 
 
 # Exécuter l'algorithme avec les données préparées
@@ -146,3 +151,4 @@ for k, chosen in final_solution.items():
         for op in initial_columns[k]:
             operation_id, start_time, end_time = op
             print(f"  Opération {operation_id}: de {start_time} à {end_time}")
+
