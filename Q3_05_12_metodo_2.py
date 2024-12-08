@@ -82,3 +82,4 @@ if __name__ == "__main__":
     incompatibilidades = generate_incompatibilidades(operaciones)
     assigned_blocks, used_blocks = assign_operations_to_blocks(operaciones, incompatibilidades)
     export_results(assigned_blocks, used_blocks, "planifications_optimales.xlsx")
+    print(f"Numero de quirofanos utilizados : {len(used_blocks)}")
